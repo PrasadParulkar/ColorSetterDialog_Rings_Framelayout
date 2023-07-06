@@ -8,15 +8,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 
-import com.example.myapplication.ColorPickerDialog;
-
-import com.skydoves.colorpickerview.AlphaTileView;
 import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.flag.BubbleFlag;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
@@ -24,15 +20,12 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 public class MainActivity extends AppCompatActivity {
 
 
-    private Button mSetColorButton, mPickColorButton;
-
-    private View mColorPreview, mOuter;
+    private View mColorPreview;
 
     private int mDefaultColor;
 
     FrameLayout mFramelayout;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
         LayerDrawable layerDrawable = (LayerDrawable) ContextCompat.getDrawable(this, R.drawable.button_background);
 
 
-        mPickColorButton = findViewById(R.id.pick_color_button);
-        mSetColorButton = findViewById(R.id.set_color_button);
+        Button mPickColorButton = findViewById(R.id.pick_color_button);
+        Button mSetColorButton = findViewById(R.id.set_color_button);
 
 
         mColorPreview = findViewById(R.id.preview_selected_color);
@@ -53,30 +46,21 @@ public class MainActivity extends AppCompatActivity {
 
 
         mPickColorButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        dialog();
-                    }
-                });
+                v -> dialog());
 
         mSetColorButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        for (int i = 2; i >= 0; i--) {
-                            int targetLayerIndex = i;
-                            Drawable layer = layerDrawable.getDrawable(targetLayerIndex);
-                            if (layer instanceof GradientDrawable) {
-                                GradientDrawable gradientDrawable = (GradientDrawable) layer;
-                                int alpha = calculateAlphaValueForIndex(i);
-                                gradientDrawable.setColor(ColorUtils.setAlphaComponent(mDefaultColor, alpha));
-                            }
-                            layerDrawable.setDrawableByLayerId(layerDrawable.getId(targetLayerIndex), layer);
+                v -> {
+                    for (int i = 2; i >= 0; i--) {
+                        assert layerDrawable != null;
+                        Drawable layer = layerDrawable.getDrawable(i);
+                        if (layer instanceof GradientDrawable) {
+                            GradientDrawable gradientDrawable = (GradientDrawable) layer;
+                            int alpha = calculateAlphaValueForIndex(i);
+                            gradientDrawable.setColor(ColorUtils.setAlphaComponent(mDefaultColor, alpha));
                         }
-                        mFramelayout.setBackgroundDrawable(layerDrawable);
-
+                        layerDrawable.setDrawableByLayerId(layerDrawable.getId(i), layer);
                     }
+                    mFramelayout.setBackgroundDrawable(layerDrawable);
                 });
     }
 
